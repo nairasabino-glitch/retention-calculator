@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -330,13 +330,54 @@
     <div class="container">
         <div class="header">
             <h1>🧪 GC-MS Retention Index Calculator</h1>
-            <p>Calculate Kovats (IK) and Van den Dool & Kratz (IR) indices</p>
+            <p>Calculate Kovats (IK), Van den Dool & Kratz (IR), and Fiehn (FAME) indices</p>
+        </div>
+
+        <!-- Instructions Section -->
+        <div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #fbbf24;">
+            <h3 style="color: #92400e; font-size: 1.2rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                📖 Instructions - File Format
+            </h3>
+            <div style="background: white; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                <p style="color: #374151; margin-bottom: 0.75rem; font-weight: 500;">Your file should have <strong>2 columns</strong>:</p>
+                <ul style="color: #6b7280; margin-left: 1.5rem; line-height: 1.8;">
+                    <li><strong>Column 1:</strong> Retention Time (numbers)</li>
+                    <li><strong>Column 2:</strong> Compound Name (text) - optional</li>
+                    <li><strong>First row:</strong> Can be headers (will be ignored)</li>
+                    <li><strong>Accepted formats:</strong> Excel (.xlsx, .xls), CSV, or TXT</li>
+                </ul>
+            </div>
+            <div style="background: white; border-radius: 12px; padding: 1rem;">
+                <p style="color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Example file structure:</p>
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                    <thead style="background: #f3f4f6;">
+                        <tr>
+                            <th style="padding: 0.5rem; text-align: left; border: 1px solid #e5e7eb;">Retention Time</th>
+                            <th style="padding: 0.5rem; text-align: left; border: 1px solid #e5e7eb;">Compound Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">5.234</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">Caffeine</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">7.891</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">Oleic acid</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">12.456</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">Palmitic acid</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="grid">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Alkane Series</h2>
+                    <h2 class="card-title">Reference Standards</h2>
                     <button class="btn btn-primary" onclick="addAlkane()">
                         <svg class="icon-sm" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
@@ -344,6 +385,17 @@
                         Add
                     </button>
                 </div>
+                
+                <div style="margin-bottom: 1rem; padding: 0.75rem; background: #f3f4f6; border-radius: 12px;">
+                    <label style="display: block; font-size: 0.85rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">
+                        Standard Type:
+                    </label>
+                    <select id="standard-type" onchange="changeStandardType()" style="width: 100%; padding: 0.5rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 0.9rem;">
+                        <option value="alkanes">n-Alkanes (Kovats & Van den Dool)</option>
+                        <option value="fames">FAMEs (Fiehn Index)</option>
+                    </select>
+                </div>
+                
                 <div id="alkanes-list" class="scrollbar-thin" style="max-height: 400px; overflow-y: auto;"></div>
             </div>
 
@@ -395,9 +447,10 @@
                     <thead>
                         <tr>
                             <th>Compound</th>
-                            <th>Retention Time</th>
+                            <th>RT</th>
                             <th>Kovats (IK)</th>
-                            <th>Van den Dool & Kratz (IR)</th>
+                            <th>VdD&K (IR)</th>
+                            <th>Fiehn (FAME)</th>
                         </tr>
                     </thead>
                     <tbody id="results-body"></tbody>
@@ -408,6 +461,7 @@
 
     <script>
         var state = {
+            standardType: 'alkanes',
             alkanes: [
                 { carbonNumber: 11, retentionTime: 4.034 },
                 { carbonNumber: 12, retentionTime: 4.334 }
@@ -416,14 +470,35 @@
             results: []
         };
 
+        function changeStandardType() {
+            var select = document.getElementById('standard-type');
+            state.standardType = select.value;
+            
+            if (state.standardType === 'fames') {
+                // Default FAMEs (C8:0 to C12:0 as example)
+                state.alkanes = [
+                    { carbonNumber: 8, retentionTime: '' },
+                    { carbonNumber: 10, retentionTime: '' }
+                ];
+            } else {
+                // Default n-Alkanes
+                state.alkanes = [
+                    { carbonNumber: 11, retentionTime: 4.034 },
+                    { carbonNumber: 12, retentionTime: 4.334 }
+                ];
+            }
+            renderAlkanes();
+        }
+
         function renderAlkanes() {
             var list = document.getElementById('alkanes-list');
+            var label = state.standardType === 'fames' ? 'FAME C' : 'Carbon #';
             var html = '';
             for (var i = 0; i < state.alkanes.length; i++) {
                 var alkane = state.alkanes[i];
                 html += '<div class="alkane-item">';
                 html += '<div class="input-group">';
-                html += '<label class="input-label">Carbon #</label>';
+                html += '<label class="input-label">' + label + '</label>';
                 html += '<input type="number" value="' + alkane.carbonNumber + '" onchange="updateAlkane(' + i + ', \'carbonNumber\', this.value)" class="input">';
                 html += '</div>';
                 html += '<div class="input-group">';
@@ -545,12 +620,22 @@
                 }
             }
             
-            if (n === null) return { IK: null, IR: null };
+            if (n === null) return { IK: null, IR: null, FAME: null };
             
+            // Kovats Index (logarithmic)
             var IK = 100 * n + 100 * ((Math.log(Tr) - Math.log(Tn)) / (Math.log(Tn1) - Math.log(Tn)));
+            
+            // Van den Dool & Kratz Index (linear)
             var IR = 100 * n + 100 * ((Tr - Tn) / (Tn1 - Tn));
             
-            return { IK: IK.toFixed(2), IR: IR.toFixed(2) };
+            // Fiehn FAME Index (logarithmic, same formula as Kovats but with FAMEs)
+            var FAME = 100 * n + 100 * ((Math.log(Tr) - Math.log(Tn)) / (Math.log(Tn1) - Math.log(Tn)));
+            
+            return { 
+                IK: IK.toFixed(2), 
+                IR: IR.toFixed(2),
+                FAME: FAME.toFixed(2)
+            };
         }
 
         function runCalculation() {
@@ -583,7 +668,8 @@
                     compound: sample.compoundName,
                     retentionTime: sample.retentionTime,
                     IK: indices.IK,
-                    IR: indices.IR
+                    IR: indices.IR,
+                    FAME: indices.FAME
                 });
             }
             
@@ -607,6 +693,7 @@
                 html += '<td style="color: #6b7280;">' + result.retentionTime + '</td>';
                 html += '<td class="index-value">' + (result.IK || '<span style="color: #9ca3af;">Out of range</span>') + '</td>';
                 html += '<td class="index-value">' + (result.IR || '<span style="color: #9ca3af;">Out of range</span>') + '</td>';
+                html += '<td class="index-value">' + (result.FAME || '<span style="color: #9ca3af;">Out of range</span>') + '</td>';
                 html += '</tr>';
             }
             body.innerHTML = html;
@@ -621,7 +708,7 @@
                 return;
             }
             
-            var headers = ['Compound Name', 'Retention Time', 'Kovats Index (IK)', 'Van den Dool & Kratz Index (IR)'];
+            var headers = ['Compound Name', 'Retention Time', 'Kovats Index (IK)', 'Van den Dool & Kratz Index (IR)', 'Fiehn Index (FAME)'];
             var rows = [];
             
             for (var i = 0; i < state.results.length; i++) {
@@ -630,7 +717,8 @@
                     r.compound,
                     r.retentionTime,
                     r.IK || 'Out of range',
-                    r.IR || 'Out of range'
+                    r.IR || 'Out of range',
+                    r.FAME || 'Out of range'
                 ]);
             }
             
