@@ -20,13 +20,13 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
         .header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
             animation: fadeIn 0.6s ease-out;
         }
         
@@ -41,7 +41,68 @@
             color: rgba(255,255,255,0.9);
             font-size: 1.1rem;
         }
-        
+
+        .reference-type-selector {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .reference-type-selector h3 {
+            color: #4c1d95;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .reference-options {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .reference-option {
+            flex: 1;
+            min-width: 200px;
+            max-width: 300px;
+            padding: 1rem;
+            border: 3px solid #e5e7eb;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .reference-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .reference-option.active {
+            border-color: #8b5cf6;
+            background: linear-gradient(135deg, #f3e8ff 0%, #fae8ff 100%);
+        }
+
+        .reference-option input[type="radio"] {
+            display: none;
+        }
+
+        .reference-option-title {
+            font-weight: 600;
+            color: #4c1d95;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .reference-option-desc {
+            font-size: 0.85rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -217,27 +278,23 @@
             color: #059669;
             font-weight: 600;
             margin-bottom: 0.75rem;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
         
         .preview-list {
-            background: white;
-            border-radius: 12px;
-            padding: 0.75rem;
-            max-height: 160px;
+            max-height: 150px;
             overflow-y: auto;
         }
         
         .preview-item {
             display: flex;
             justify-content: space-between;
-            padding: 0.5rem;
-            font-size: 0.85rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.2);
         }
         
-        .preview-item:hover {
-            background: #f9fafb;
-            border-radius: 8px;
+        .preview-item:last-child {
+            border-bottom: none;
         }
         
         .results-table {
@@ -246,15 +303,13 @@
             margin-top: 1rem;
         }
         
-        .results-table thead {
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-        }
-        
         .results-table th {
+            background: linear-gradient(135deg, #f3e8ff 0%, #fae8ff 100%);
             padding: 1rem;
             text-align: left;
+            color: #4c1d95;
             font-weight: 600;
-            color: #374151;
+            border-bottom: 2px solid #e9d5ff;
             font-size: 0.85rem;
         }
         
@@ -289,6 +344,10 @@
             color: #6b7280;
         }
         
+        .text-success {
+            color: #10b981;
+        }
+        
         .scrollbar-thin::-webkit-scrollbar {
             width: 6px;
         }
@@ -301,6 +360,17 @@
         .scrollbar-thin::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 10px;
+        }
+
+        .info-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: #1e40af;
+            font-weight: 500;
+            margin-left: 0.5rem;
         }
         
         @keyframes fadeIn {
@@ -328,9 +398,31 @@
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
             <h1>🧪 GC-MS Retention Index Calculator</h1>
-            <p>Calculate Kovats (IK), Van den Dool & Kratz (IR), and Fiehn (FAME) indices</p>
+            <p>Calculate retention indices with scientific accuracy</p>
+        </div>
+
+        <!-- Reference Type Selector -->
+        <div class="reference-type-selector">
+            <h3>Select Reference Standard Type</h3>
+            <div class="reference-options">
+                <label class="reference-option active" id="alkane-option">
+                    <input type="radio" name="reference-type" value="alkanes" checked onclick="setReferenceType('alkanes')">
+                    <div class="reference-option-title">n-Alkanes</div>
+                    <div class="reference-option-desc">
+                        For Kovats Index (IK) and Van den Dool & Kratz Index (IR)
+                    </div>
+                </label>
+                <label class="reference-option" id="fame-option">
+                    <input type="radio" name="reference-type" value="fames" onclick="setReferenceType('fames')">
+                    <div class="reference-option-title">FAMEs</div>
+                    <div class="reference-option-desc">
+                        Fatty Acid Methyl Esters - For Fiehn Index (with Cubic Spline)
+                    </div>
+                </label>
+            </div>
         </div>
 
         <!-- Instructions Section -->
@@ -347,8 +439,8 @@
                     <li><strong>Accepted formats:</strong> Excel (.xlsx, .xls), CSV, or TXT</li>
                 </ul>
             </div>
-            <div style="background: white; border-radius: 12px; padding: 1rem;">
-                <p style="color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Example file structure:</p>
+            <div style="background: white; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                <p style="color: #374151; font-weight: 600; margin-bottom: 0.5rem;">📊 Example file structure:</p>
                 <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
                     <thead style="background: #f3f4f6;">
                         <tr>
@@ -358,82 +450,82 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">5.234</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">4.523</td>
                             <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">Caffeine</td>
                         </tr>
                         <tr>
-                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">7.891</td>
-                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">Oleic acid</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">5.821</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">Theobromine</td>
                         </tr>
                         <tr>
-                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">12.456</td>
-                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">Palmitic acid</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">6.134</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">Trigonelline</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            <div style="background: #dcfce7; border-radius: 12px; padding: 1rem; border: 2px solid #86efac;">
+                <p style="color: #166534; font-weight: 600; margin-bottom: 0.5rem;">
+                    ⚠️ Important: CSV Export Format
+                </p>
+                <p style="color: #15803d; font-size: 0.9rem; line-height: 1.6;">
+                    The exported CSV file uses <strong>semicolon (;)</strong> as separator, not comma (,). 
+                    This ensures compound names containing commas are handled correctly. 
+                    Excel and most spreadsheet software will recognize this format automatically.
+                </p>
+            </div>
         </div>
 
         <div class="grid">
+            <!-- Alkane/FAME Series Card -->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Reference Standards</h2>
-                    <button class="btn btn-primary" onclick="addAlkane()">
+                    <h2 class="card-title" id="series-title">n-Alkane Series</h2>
+                    <button class="btn btn-primary" onclick="addReference()">
                         <svg class="icon-sm" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                         </svg>
                         Add
                     </button>
                 </div>
-                
-                <div style="margin-bottom: 1rem; padding: 0.75rem; background: #f3f4f6; border-radius: 12px;">
-                    <label style="display: block; font-size: 0.85rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">
-                        Standard Type:
-                    </label>
-                    <select id="standard-type" onchange="changeStandardType()" style="width: 100%; padding: 0.5rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 0.9rem;">
-                        <option value="alkanes">n-Alkanes (Kovats & Van den Dool)</option>
-                        <option value="fames">FAMEs (Fiehn Index)</option>
-                    </select>
+                <div id="references-list" class="scrollbar-thin" style="max-height: 400px; overflow-y: auto;">
                 </div>
-                
-                <div id="alkanes-list" class="scrollbar-thin" style="max-height: 400px; overflow-y: auto;"></div>
             </div>
 
+            <!-- Sample Upload Card -->
             <div class="card">
                 <div class="card-header">
                     <h2 class="card-title">Sample Data</h2>
                 </div>
-                
-                <div class="upload-area" onclick="document.getElementById('file-upload').click()">
-                    <input type="file" id="file-upload" accept=".csv,.txt,.xlsx,.xls" onchange="handleFileUpload(event)" style="display: none;">
+                <div class="upload-area" onclick="document.getElementById('file-input').click()">
                     <div class="upload-icon">
-                        <svg viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                         </svg>
                     </div>
-                    <p style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;" id="file-name">Click to upload</p>
-                    <p style="font-size: 0.85rem; color: #6b7280;">Excel, CSV, or TXT</p>
+                    <p style="font-weight: 600; color: #1e40af; margin-bottom: 0.5rem;">Drop your file here or click to browse</p>
+                    <p style="font-size: 0.85rem; color: #6b7280;">Supports Excel (.xlsx, .xls), CSV, and TXT files</p>
+                    <p style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.5rem;">Column 1: Retention Time | Column 2: Compound Name (optional)</p>
                 </div>
-
+                <input type="file" id="file-input" accept=".xlsx,.xls,.csv,.txt" style="display: none;" onchange="handleFileUpload(event)">
+                
                 <div id="sample-preview" class="hidden"></div>
-
-                <button class="btn btn-primary btn-full" onclick="runCalculation()">
+                
+                <button class="btn btn-success btn-full" onclick="runCalculation()">
                     <svg class="icon-sm" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                     </svg>
                     Calculate Indices
                 </button>
                 
-                <div id="progress" class="hidden" style="margin-top: 1rem; text-align: center; color: #3b82f6; font-weight: 600;"></div>
+                <p id="progress" class="text-gray hidden" style="margin-top: 1rem; text-align: center; font-weight: 500;"></p>
             </div>
         </div>
 
+        <!-- Results Section -->
         <div id="results-section" class="card hidden">
             <div class="card-header">
-                <div>
-                    <h2 class="card-title">Results</h2>
-                    <p class="text-gray" style="font-size: 0.9rem; margin-top: 0.25rem;" id="results-summary"></p>
-                </div>
+                <h2 class="card-title">Results</h2>
                 <button class="btn btn-success" onclick="exportToCSV()">
                     <svg class="icon-sm" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -442,18 +534,21 @@
                 </button>
             </div>
             
+            <p id="results-summary" class="text-success" style="margin-bottom: 1rem; font-weight: 500;"></p>
+            
             <div style="overflow-x: auto;">
                 <table class="results-table">
                     <thead>
                         <tr>
-                            <th>Compound</th>
-                            <th>RT</th>
-                            <th>Kovats (IK)</th>
-                            <th>VdD&K (IR)</th>
-                            <th>Fiehn (FAME)</th>
+                            <th>Compound Name</th>
+                            <th>Retention Time</th>
+                            <th id="col-ik">Kovats (IK) <span class="info-badge">Logarithmic</span></th>
+                            <th id="col-ir">Van den Dool & Kratz (IR) <span class="info-badge">Linear</span></th>
+                            <th id="col-fame" class="hidden">Fiehn FAME <span class="info-badge">Cubic Spline</span></th>
                         </tr>
                     </thead>
-                    <tbody id="results-body"></tbody>
+                    <tbody id="results-body">
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -461,8 +556,8 @@
 
     <script>
         var state = {
-            standardType: 'alkanes',
-            alkanes: [
+            referenceType: 'alkanes', // 'alkanes' or 'fames'
+            references: [
                 { carbonNumber: 11, retentionTime: 4.034 },
                 { carbonNumber: 12, retentionTime: 4.334 }
             ],
@@ -470,77 +565,89 @@
             results: []
         };
 
-        function changeStandardType() {
-            var select = document.getElementById('standard-type');
-            state.standardType = select.value;
+        function setReferenceType(type) {
+            state.referenceType = type;
             
-            if (state.standardType === 'fames') {
-                // Default FAMEs (C8:0 to C12:0 as example)
-                state.alkanes = [
-                    { carbonNumber: 8, retentionTime: '' },
-                    { carbonNumber: 10, retentionTime: '' }
-                ];
+            // Update UI
+            document.getElementById('alkane-option').classList.toggle('active', type === 'alkanes');
+            document.getElementById('fame-option').classList.toggle('active', type === 'fames');
+            
+            // Update series title
+            document.getElementById('series-title').textContent = 
+                type === 'alkanes' ? 'n-Alkane Series' : 'FAME Series';
+            
+            // Update column headers
+            if (type === 'alkanes') {
+                document.getElementById('col-ik').classList.remove('hidden');
+                document.getElementById('col-ir').classList.remove('hidden');
+                document.getElementById('col-fame').classList.add('hidden');
             } else {
-                // Default n-Alkanes
-                state.alkanes = [
-                    { carbonNumber: 11, retentionTime: 4.034 },
-                    { carbonNumber: 12, retentionTime: 4.334 }
-                ];
+                document.getElementById('col-ik').classList.add('hidden');
+                document.getElementById('col-ir').classList.add('hidden');
+                document.getElementById('col-fame').classList.remove('hidden');
             }
-            renderAlkanes();
+            
+            renderReferences();
         }
 
-        function renderAlkanes() {
-            var list = document.getElementById('alkanes-list');
-            var label = state.standardType === 'fames' ? 'FAME C' : 'Carbon #';
+        function addReference() {
+            var lastCarbon = state.references.length > 0 ? 
+                state.references[state.references.length - 1].carbonNumber : 10;
+            state.references.push({ carbonNumber: lastCarbon + 1, retentionTime: '' });
+            renderReferences();
+        }
+
+        function removeReference(index) {
+            state.references = state.references.filter(function(_, i) { return i !== index; });
+            renderReferences();
+        }
+
+        function updateReference(index, field, value) {
+            if (field === 'retentionTime') {
+                state.references[index][field] = value === '' ? '' : parseFloat(value) || '';
+            } else {
+                state.references[index][field] = parseFloat(value) || 0;
+            }
+        }
+
+        function renderReferences() {
+            var list = document.getElementById('references-list');
+            var label = state.referenceType === 'alkanes' ? 'Carbon #' : 'FAME C';
+            
             var html = '';
-            for (var i = 0; i < state.alkanes.length; i++) {
-                var alkane = state.alkanes[i];
+            for (var i = 0; i < state.references.length; i++) {
+                var ref = state.references[i];
+                var rtValue = ref.retentionTime === '' ? '' : ref.retentionTime;
                 html += '<div class="alkane-item">';
-                html += '<div class="input-group">';
-                html += '<label class="input-label">' + label + '</label>';
-                html += '<input type="number" value="' + alkane.carbonNumber + '" onchange="updateAlkane(' + i + ', \'carbonNumber\', this.value)" class="input">';
-                html += '</div>';
-                html += '<div class="input-group">';
-                html += '<label class="input-label">Retention Time</label>';
-                html += '<input type="number" step="0.001" value="' + alkane.retentionTime + '" onchange="updateAlkane(' + i + ', \'retentionTime\', this.value)" placeholder="0.000" class="input">';
-                html += '</div>';
-                html += '<button class="btn-delete" onclick="removeAlkane(' + i + ')">';
-                html += '<svg class="icon-sm" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
-                html += '</button>';
+                html += '  <div class="input-group">';
+                html += '    <label class="input-label">' + label + '</label>';
+                html += '    <input type="number" class="input" value="' + ref.carbonNumber + '" ';
+                html += '           onchange="updateReference(' + i + ', \'carbonNumber\', this.value)">';
+                html += '  </div>';
+                html += '  <div class="input-group" style="flex: 2;">';
+                html += '    <label class="input-label">Retention Time (min)</label>';
+                html += '    <input type="number" step="0.001" class="input" value="' + rtValue + '" ';
+                html += '           placeholder="e.g., 5,234" ';
+                html += '           onchange="updateReference(' + i + ', \'retentionTime\', this.value)">';
+                html += '  </div>';
+                html += '  <button class="btn-delete" onclick="removeReference(' + i + ')">';
+                html += '    <svg class="icon-sm" viewBox="0 0 24 24">';
+                html += '      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>';
+                html += '    </svg>';
+                html += '  </button>';
                 html += '</div>';
             }
             list.innerHTML = html;
-        }
-
-        function addAlkane() {
-            var lastCarbon = state.alkanes.length > 0 ? state.alkanes[state.alkanes.length - 1].carbonNumber : 10;
-            state.alkanes.push({ carbonNumber: lastCarbon + 1, retentionTime: '' });
-            renderAlkanes();
-        }
-
-        function removeAlkane(index) {
-            state.alkanes = state.alkanes.filter(function(item, i) { return i !== index; });
-            renderAlkanes();
-        }
-
-        function updateAlkane(index, field, value) {
-            if (value === '') {
-                state.alkanes[index][field] = '';
-            } else {
-                state.alkanes[index][field] = parseFloat(value) || '';
-            }
-            renderAlkanes();
         }
 
         function handleFileUpload(event) {
             var file = event.target.files[0];
             if (!file) return;
             
-            document.getElementById('file-name').textContent = '📄 ' + file.name;
-            var fileExtension = file.name.split('.').pop().toLowerCase();
+            var fileName = file.name;
+            var extension = fileName.split('.').pop().toLowerCase();
             
-            if (fileExtension === 'xlsx' || fileExtension === 'xls') {
+            if (extension === 'xlsx' || extension === 'xls') {
                 var reader = new FileReader();
                 reader.onload = function(e) {
                     var data = new Uint8Array(e.target.result);
@@ -597,45 +704,130 @@
             preview.innerHTML = html;
         }
 
-        function calculateIndices(Tr, alkanesArray) {
-            var validAlkanes = alkanesArray.filter(function(a) {
-                return a.retentionTime !== '' && !isNaN(parseFloat(a.retentionTime));
-            });
+        // Cubic Spline implementation
+        function cubicSplineInterpolation(x, y, xi) {
+            var n = x.length - 1;
+            var h = [];
+            var alpha = [];
             
-            var sorted = validAlkanes.slice().sort(function(a, b) {
-                return parseFloat(a.retentionTime) - parseFloat(b.retentionTime);
-            });
+            // Calculate h values
+            for (var i = 0; i < n; i++) {
+                h[i] = x[i + 1] - x[i];
+            }
             
-            var n = null, Tn = null, Tn1 = null;
+            // Calculate alpha values
+            for (var i = 1; i < n; i++) {
+                alpha[i] = (3 / h[i]) * (y[i + 1] - y[i]) - (3 / h[i - 1]) * (y[i] - y[i - 1]);
+            }
             
-            for (var i = 0; i < sorted.length - 1; i++) {
-                var currentRT = parseFloat(sorted[i].retentionTime);
-                var nextRT = parseFloat(sorted[i + 1].retentionTime);
-                
-                if (Tr >= currentRT && Tr <= nextRT) {
-                    n = sorted[i].carbonNumber;
-                    Tn = currentRT;
-                    Tn1 = nextRT;
+            // Solve tridiagonal system for c values
+            var l = [1];
+            var mu = [0];
+            var z = [0];
+            
+            for (var i = 1; i < n; i++) {
+                l[i] = 2 * (x[i + 1] - x[i - 1]) - h[i - 1] * mu[i - 1];
+                mu[i] = h[i] / l[i];
+                z[i] = (alpha[i] - h[i - 1] * z[i - 1]) / l[i];
+            }
+            
+            l[n] = 1;
+            z[n] = 0;
+            var c = new Array(n + 1);
+            c[n] = 0;
+            
+            var b = [];
+            var d = [];
+            c[0] = 0;
+            
+            for (var j = n - 1; j >= 0; j--) {
+                c[j] = z[j] - mu[j] * c[j + 1];
+                b[j] = (y[j + 1] - y[j]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / 3;
+                d[j] = (c[j + 1] - c[j]) / (3 * h[j]);
+            }
+            
+            // Find the appropriate interval
+            var j = 0;
+            for (var i = 0; i < n; i++) {
+                if (xi >= x[i] && xi <= x[i + 1]) {
+                    j = i;
                     break;
                 }
             }
             
-            if (n === null) return { IK: null, IR: null, FAME: null };
+            // Calculate interpolated value
+            var dx = xi - x[j];
+            var result = y[j] + b[j] * dx + c[j] * dx * dx + d[j] * dx * dx * dx;
             
-            // Kovats Index (logarithmic)
-            var IK = 100 * n + 100 * ((Math.log(Tr) - Math.log(Tn)) / (Math.log(Tn1) - Math.log(Tn)));
+            return result;
+        }
+
+        function calculateIndices(Tr, referencesArray) {
+            var validRefs = referencesArray.filter(function(a) {
+                return a.retentionTime !== '' && !isNaN(parseFloat(a.retentionTime));
+            });
             
-            // Van den Dool & Kratz Index (linear)
-            var IR = 100 * n + 100 * ((Tr - Tn) / (Tn1 - Tn));
+            var sorted = validRefs.slice().sort(function(a, b) {
+                return parseFloat(a.retentionTime) - parseFloat(b.retentionTime);
+            });
             
-            // Fiehn FAME Index (logarithmic, same formula as Kovats but with FAMEs)
-            var FAME = 100 * n + 100 * ((Math.log(Tr) - Math.log(Tn)) / (Math.log(Tn1) - Math.log(Tn)));
-            
-            return { 
-                IK: IK.toFixed(2), 
-                IR: IR.toFixed(2),
-                FAME: FAME.toFixed(2)
-            };
+            if (state.referenceType === 'alkanes') {
+                // Kovats and Van den Dool & Kratz using linear interpolation
+                var n = null, Tn = null, Tn1 = null, N = null;
+                
+                for (var i = 0; i < sorted.length - 1; i++) {
+                    var currentRT = parseFloat(sorted[i].retentionTime);
+                    var nextRT = parseFloat(sorted[i + 1].retentionTime);
+                    
+                    if (Tr >= currentRT && Tr <= nextRT) {
+                        n = sorted[i].carbonNumber;
+                        N = sorted[i + 1].carbonNumber;
+                        Tn = currentRT;
+                        Tn1 = nextRT;
+                        break;
+                    }
+                }
+                
+                if (n === null) return { IK: null, IR: null, FAME: null };
+                
+                // Kovats Index (logarithmic interpolation)
+                var IK = 100 * n + 100 * ((Math.log(Tr) - Math.log(Tn)) / (Math.log(Tn1) - Math.log(Tn)));
+                
+                // Van den Dool & Kratz Index (linear interpolation)
+                var IR = 100 * n + 100 * ((Tr - Tn) / (Tn1 - Tn));
+                
+                return { 
+                    IK: IK.toFixed(2), 
+                    IR: IR.toFixed(2),
+                    FAME: null
+                };
+            } else {
+                // Fiehn FAME Index using cubic spline interpolation
+                if (sorted.length < 3) {
+                    return { IK: null, IR: null, FAME: 'Need 3+ FAMEs for cubic spline' };
+                }
+                
+                // Check if Tr is within range
+                var minRT = sorted[0].retentionTime;
+                var maxRT = sorted[sorted.length - 1].retentionTime;
+                
+                if (Tr < minRT || Tr > maxRT) {
+                    return { IK: null, IR: null, FAME: null };
+                }
+                
+                // Prepare data for cubic spline
+                var x = sorted.map(function(ref) { return ref.retentionTime; });
+                var y = sorted.map(function(ref) { return 100 * ref.carbonNumber; });
+                
+                // Calculate FAME index using cubic spline
+                var FAME = cubicSplineInterpolation(x, y, Tr);
+                
+                return { 
+                    IK: null,
+                    IR: null,
+                    FAME: FAME.toFixed(2)
+                };
+            }
         }
 
         function runCalculation() {
@@ -644,12 +836,14 @@
                 return;
             }
             
-            var validAlkanes = state.alkanes.filter(function(a) {
+            var validRefs = state.references.filter(function(a) {
                 return a.retentionTime !== '' && !isNaN(parseFloat(a.retentionTime));
             });
             
-            if (validAlkanes.length < 2) {
-                alert('⚠️ Please add at least 2 alkanes with valid retention times!');
+            var minRefs = state.referenceType === 'fames' ? 3 : 2;
+            if (validRefs.length < minRefs) {
+                alert('⚠️ Please add at least ' + minRefs + ' reference standards with valid retention times!' +
+                      (state.referenceType === 'fames' ? ' (Cubic spline requires 3+ points)' : ''));
                 return;
             }
             
@@ -662,7 +856,7 @@
                 var sample = state.sampleData[i];
                 progress.textContent = '⚡ Calculating ' + (i + 1) + '/' + state.sampleData.length + '...';
                 
-                var indices = calculateIndices(sample.retentionTime, state.alkanes);
+                var indices = calculateIndices(sample.retentionTime, state.references);
                 
                 state.results.push({
                     compound: sample.compoundName,
@@ -682,7 +876,9 @@
             var body = document.getElementById('results-body');
             var summary = document.getElementById('results-summary');
             
-            var calculated = state.results.filter(function(r) { return r.IK !== null; }).length;
+            var calculated = state.results.filter(function(r) { 
+                return state.referenceType === 'alkanes' ? (r.IK !== null || r.IR !== null) : r.FAME !== null; 
+            }).length;
             summary.textContent = '✅ ' + calculated + ' of ' + state.results.length + ' compounds calculated successfully';
             
             var html = '';
@@ -691,9 +887,13 @@
                 html += '<tr>';
                 html += '<td style="font-weight: 500;" title="' + result.compound + '">' + result.compound + '</td>';
                 html += '<td style="color: #6b7280;">' + result.retentionTime + '</td>';
-                html += '<td class="index-value">' + (result.IK || '<span style="color: #9ca3af;">Out of range</span>') + '</td>';
-                html += '<td class="index-value">' + (result.IR || '<span style="color: #9ca3af;">Out of range</span>') + '</td>';
-                html += '<td class="index-value">' + (result.FAME || '<span style="color: #9ca3af;">Out of range</span>') + '</td>';
+                
+                if (state.referenceType === 'alkanes') {
+                    html += '<td class="index-value">' + (result.IK || '<span style="color: #9ca3af;">Out of range</span>') + '</td>';
+                    html += '<td class="index-value">' + (result.IR || '<span style="color: #9ca3af;">Out of range</span>') + '</td>';
+                } else {
+                    html += '<td class="index-value">' + (result.FAME || '<span style="color: #9ca3af;">Out of range</span>') + '</td>';
+                }
                 html += '</tr>';
             }
             body.innerHTML = html;
@@ -708,18 +908,27 @@
                 return;
             }
             
-            var headers = ['Compound Name', 'Retention Time', 'Kovats Index (IK)', 'Van den Dool & Kratz Index (IR)', 'Fiehn Index (FAME)'];
-            var rows = [];
+            var headers, rows;
             
-            for (var i = 0; i < state.results.length; i++) {
-                var r = state.results[i];
-                rows.push([
-                    r.compound,
-                    r.retentionTime,
-                    r.IK || 'Out of range',
-                    r.IR || 'Out of range',
-                    r.FAME || 'Out of range'
-                ]);
+            if (state.referenceType === 'alkanes') {
+                headers = ['Compound Name', 'Retention Time', 'Kovats Index (IK)', 'Van den Dool & Kratz Index (IR)'];
+                rows = state.results.map(function(r) {
+                    return [
+                        r.compound,
+                        r.retentionTime,
+                        r.IK || 'Out of range',
+                        r.IR || 'Out of range'
+                    ];
+                });
+            } else {
+                headers = ['Compound Name', 'Retention Time', 'Fiehn FAME Index'];
+                rows = state.results.map(function(r) {
+                    return [
+                        r.compound,
+                        r.retentionTime,
+                        r.FAME || 'Out of range'
+                    ];
+                });
             }
             
             var csvLines = [headers.join(';')];
@@ -744,7 +953,8 @@
             link.href = url;
             
             var timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-            link.download = 'retention_indices_' + timestamp + '.csv';
+            var indexType = state.referenceType === 'alkanes' ? 'kovats_vandendool' : 'fiehn_fame';
+            link.download = 'retention_indices_' + indexType + '_' + timestamp + '.csv';
             
             document.body.appendChild(link);
             link.click();
@@ -752,7 +962,7 @@
             URL.revokeObjectURL(url);
         }
 
-        renderAlkanes();
+        renderReferences();
     </script>
 </body>
 </html>
